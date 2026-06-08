@@ -1,0 +1,224 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      build-type:
+        description: 'Build type'
+        required: true
+        type: choice
+        default: 'debug'
+        options:
+          - debug
+          - release
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-android:
+    name: Build APK (aarch64)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+
+    steps:
+      # ============================================================
+      # 1. Checkout
+      # ============================================================
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      # ============================================================
+      # 2. Node.js — build the frontend
+      # ============================================================
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: 📦 Install frontend dependencies
+        run: npm ci
+
+      - name: 🏗️ Build frontend
+        run: npm run build
+
+      # ============================================================
+      # 3. Rust — cross-compile for Android
+      # ============================================================
+      - name: 🦀 Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: 🎯 Add Android Rust targets
+        run: |
+          rustup target add \
+            aarch64-linux-android \
+            armv7-linux-androideabi \
+            i686-linux-android \
+            x86_64-linux-android
+
+      - name: 💾 Cache Cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            ~/.cargo/git/db
+            src-tauri/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('src-tauri/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      # ============================================================
+      # 4. Java — required by Android SDK
+      # ============================================================
+      - name: ☕ Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      # ============================================================
+      # 5. Android SDK + NDK
+      # ============================================================
+      - name: 🤖 Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: |
+            platforms;android-34
+            build-tools;34.0.0
+            ndk;27.0.12077973
+            platform-tools
+
+      # Tauri looks for NDK_HOME; setup-android sets ANDROID_NDK_HOME
+      - name: 🔗 Set NDK_HOME
+        run: |
+          echo "NDK_HOME=${ANDROID_NDK_HOME}" >> $GITHUB_ENV
+
+      # ============================================================
+      # 6. Generate app icons (Python — no external deps)
+      # ============================================================
+      - name: 🎨 Generate icons
+        run: |
+          python3 << 'PYEOF'
+          import struct, zlib, os
+
+          def create_png(width, height, r, g, b):
+              """Create a minimal valid solid-color PNG."""
+              def chunk(ctype, data):
+                  c = ctype + data
+                  return struct.pack('>I', len(data)) + c + struct.pack('>I', zlib.crc32(c) & 0xffffffff)
+
+              header = b'\x89PNG\r\n\x1a\n'
+              ihdr = chunk(b'IHDR', struct.pack('>IIBBBBB', width, height, 8, 2, 0, 0, 0))
+              raw = b''
+              for y in range(height):
+                  raw += b'\x00'  # filter: none
+                  for x in range(width):
+                      raw += bytes([r, g, b])
+              idat = chunk(b'IDAT', zlib.compress(raw))
+              iend = chunk(b'IEND', b'')
+              return header + ihdr + idat + iend
+
+          os.makedirs("src-tauri/icons", exist_ok=True)
+
+          # App icon color: a nice purple (#6B4FF7)
+          r, g, b = 0x6B, 0x4F, 0xF7
+
+          sizes = {
+              "32x32.png": (32, 32),
+              "128x128.png": (128, 128),
+              "128x128@2x.png": (256, 256),
+              "icon.png": (1024, 1024),
+          }
+
+          for name, (w, h) in sizes.items():
+              path = os.path.join("src-tauri/icons", name)
+              with open(path, "wb") as f:
+                  f.write(create_png(w, h, r, g, b))
+              print(f"  ✓ {name} ({w}x{h})")
+
+          # ICO is a copy of 256x256 PNG for simplicity
+          with open("src-tauri/icons/128x128.png", "rb") as src:
+              with open("src-tauri/icons/icon.ico", "wb") as dst:
+                  dst.write(src.read())
+          print("  ✓ icon.ico")
+
+          # ICNS is a copy of 128x128 PNG for simplicity
+          with open("src-tauri/icons/128x128.png", "rb") as src:
+              with open("src-tauri/icons/icon.icns", "wb") as dst:
+                  dst.write(src.read())
+          print("  ✓ icon.icns")
+
+          print("All icons generated ✓")
+          PYEOF
+
+      # ============================================================
+      # 7. Install Tauri CLI
+      # ============================================================
+      - name: 📦 Install Tauri CLI
+        run: npm install -g @tauri-apps/cli@latest
+
+      # ============================================================
+      # 8. Initialize Android project
+      # ============================================================
+      - name: 🔧 Initialize Android project
+        run: |
+          npx tauri android init
+        env:
+          JAVA_HOME: ${{ env.JAVA_HOME }}
+          ANDROID_HOME: ${{ env.ANDROID_HOME }}
+          NDK_HOME: ${{ env.NDK_HOME }}
+
+      # Cache Gradle after init (gradle files are now generated)
+      - name: 💾 Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('src-tauri/gen/android/**/*.gradle*', 'src-tauri/gen/android/**/*.kts') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      # ============================================================
+      # 9. Build Android APK
+      # ============================================================
+      - name: 📱 Build Android APK
+        run: |
+          BUILD_TYPE="${{ inputs.build-type || 'debug' }}"
+          if [ "$BUILD_TYPE" = "release" ]; then
+            npx tauri android build --apk
+          else
+            npx tauri android build --debug --apk
+          fi
+        env:
+          JAVA_HOME: ${{ env.JAVA_HOME }}
+          ANDROID_HOME: ${{ env.ANDROID_HOME }}
+          NDK_HOME: ${{ env.NDK_HOME }}
+
+      # ============================================================
+      # 10. Upload APK artifact
+      # ============================================================
+      - name: 📤 Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug
+          path: src-tauri/gen/android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          compression-level: 9
+
+      # Also try release path if it exists
+      - name: 📤 Upload release APK (if exists)
+        if: ${{ inputs.build-type == 'release' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-unsigned
+          path: src-tauri/gen/android/app/build/outputs/apk/release/app-release-unsigned.apk
+          if-no-files-found: warn

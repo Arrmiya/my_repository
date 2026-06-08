@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <title>My Tauri App</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <div class="container">
+        <h1>🦀 Tauri + Android</h1>
+        <p class="subtitle">跨平台桌面应用 · 现已支持 Android</p>
+        <div class="card">
+          <p>前端: <strong>Vanilla JS + Vite</strong></p>
+          <p>后端: <strong>Rust + Tauri v2</strong></p>
+          <p>平台: <strong>Android · Windows · macOS · Linux</strong></p>
+        </div>
+        <button id="greet-btn" class="btn">👋 打招呼</button>
+        <p id="greet-msg" class="greet"></p>
+      </div>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
