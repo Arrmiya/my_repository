@@ -89,11 +89,7 @@ jobs:
       - name: 🤖 Setup Android SDK
         uses: android-actions/setup-android@v3
         with:
-          packages: |
-            platforms;android-34
-            build-tools;34.0.0
-            ndk;27.0.12077973
-            platform-tools
+          packages: 'platforms;android-34 build-tools;34.0.0 ndk;27.0.12077973 platform-tools'
 
       # Tauri looks for NDK_HOME; setup-android sets ANDROID_NDK_HOME
       - name: 🔗 Set NDK_HOME
