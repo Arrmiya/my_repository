@@ -16,6 +16,7 @@
   --danger: #ff3b30;
   --radius: 12px;
   --toolbar-h: 52px;
+  --statusbar-h: env(safe-area-inset-top, 32px);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -33,7 +34,7 @@ body {
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
-  padding-top: var(--toolbar-h);
+  padding-top: calc(var(--toolbar-h) + var(--statusbar-h));
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
 }
@@ -41,7 +42,7 @@ body {
 /* ─── 地址栏 ─── */
 #toolbar {
   position: fixed;
-  top: 0;
+  top: var(--statusbar-h);
   left: 0;
   right: 0;
   height: var(--toolbar-h);
