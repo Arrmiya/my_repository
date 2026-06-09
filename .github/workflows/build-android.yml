@@ -111,12 +111,12 @@ jobs:
                   return struct.pack('>I', len(data)) + c + struct.pack('>I', zlib.crc32(c) & 0xffffffff)
 
               header = b'\x89PNG\r\n\x1a\n'
-              ihdr = chunk(b'IHDR', struct.pack('>IIBBBBB', width, height, 8, 2, 0, 0, 0))
+              ihdr = chunk(b'IHDR', struct.pack('>IIBBBBB', width, height, 8, 6, 0, 0, 0))
               raw = b''
               for y in range(height):
                   raw += b'\x00'  # filter: none
                   for x in range(width):
-                      raw += bytes([r, g, b])
+                      raw += bytes([r, g, b, 255])  # RGBA
               idat = chunk(b'IDAT', zlib.compress(raw))
               iend = chunk(b'IEND', b'')
               return header + ihdr + idat + iend
