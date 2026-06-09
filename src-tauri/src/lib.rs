@@ -19,6 +19,18 @@ const INJECT_SCRIPT: &str = r#"
 (function(){
 if(window.__browserInjected)return;window.__browserInjected=1;
 
+// 拦截 bilibili:// baiduboxapp:// 等自定义 Scheme
+let ALLOWED=/^(http|https|javascript|mailto|tel|about|data|blob):/i;
+document.addEventListener('click',function(e){
+  let a=e.target.closest('a');
+  if(a&&a.href&&!/^#/.test(a.getAttribute('href')||'')){
+    let s=a.href.split(':')[0];
+    if(!ALLOWED.test(s+':')){e.preventDefault();e.stopPropagation();console.log('[Block]',s);}
+  }
+},true);
+let _ow=window.open;
+window.open=function(u){if(typeof u==='string'&&!ALLOWED.test(u.split(':')[0]+':'))return null;return _ow.apply(this,arguments);};
+
 let detected=new Set();
 function notify(url,type,title){
   let k=url+'|'+type;
@@ -373,16 +385,6 @@ pub fn run() {
             // 注入视频检测脚本到主 webview
             if let Some(webview) = app.get_webview_window("main") {
                 let _ = webview.eval(INJECT_SCRIPT);
-
-                // 拦截自定义 URL Scheme（阻止百度/淘宝等跳转 App）
-                let _ = webview.on_navigation(|url| {
-                    let scheme = url.scheme();
-                    let allowed = matches!(scheme, "http" | "https" | "tauri" | "asset" | "data" | "blob" | "about");
-                    if !allowed {
-                        println!("[Browser] 已拦截跳转: {}://...", scheme);
-                    }
-                    allowed
-                });
             }
             println!("[Browser] 应用启动完成");
             Ok(())
