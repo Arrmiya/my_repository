@@ -1,3 +1,4 @@
+/* ─── 基础重置 ─── */
 * {
   margin: 0;
   padding: 0;
@@ -6,91 +7,311 @@
 
 :root {
   --bg: #f5f5f7;
-  --card-bg: #ffffff;
+  --surface: #ffffff;
   --text: #1d1d1f;
   --text-secondary: #6e6e73;
   --accent: #6b4ff7;
   --accent-hover: #5a3de0;
-  --radius: 16px;
+  --border: #e0e0e5;
+  --danger: #ff3b30;
+  --radius: 12px;
+  --toolbar-h: 52px;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: #1c1c1e;
-    --card-bg: #2c2c2e;
+    --surface: #2c2c2e;
     --text: #f5f5f7;
     --text-secondary: #a1a1a6;
+    --border: #3a3a3c;
   }
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background: var(--bg);
   color: var(--text);
-  display: flex;
-  justify-content: center;
-  align-items: center;
   min-height: 100vh;
+  padding-top: var(--toolbar-h);
   -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.container {
+/* ─── 地址栏 ─── */
+#toolbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--toolbar-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 4px 8px;
+  gap: 6px;
+  z-index: 1000;
+}
+
+.nav-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  color: var(--text);
+  border-radius: 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-btn:active {
+  background: var(--border);
+}
+
+#url-bar-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background: var(--bg);
+  border-radius: 20px;
+  padding: 0 12px;
+  height: 36px;
+  border: 1px solid var(--border);
+}
+
+#url-lock {
+  font-size: 13px;
+  margin-right: 6px;
+  flex-shrink: 0;
+}
+
+#url-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  color: var(--text);
+  outline: none;
+  min-width: 0;
+}
+
+#url-input::placeholder {
+  color: var(--text-secondary);
+}
+
+.go-btn {
+  width: 32px;
+  height: 28px;
+  border: none;
+  background: var(--accent);
+  color: white;
+  border-radius: 16px;
+  font-size: 16px;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ─── 面板（下载列表） ─── */
+.panel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-height: 50vh;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-radius: 16px 16px 0 0;
+  z-index: 2000;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+  overflow-y: auto;
+  transition: transform 0.25s ease;
+}
+
+.panel.hidden {
+  transform: translateY(100%);
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  font-weight: 600;
+}
+
+.close-btn {
+  border: none;
+  background: transparent;
+  font-size: 18px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+#download-list {
+  padding: 8px 0;
+}
+
+.empty-msg {
   text-align: center;
-  padding: 2rem;
-  max-width: 420px;
+  padding: 24px;
+  color: var(--text-secondary);
+}
+
+.dl-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  gap: 10px;
+}
+
+.dl-item.done {
+  opacity: 0.7;
+}
+
+.dl-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.dl-name {
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dl-progress {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.dl-badge {
+  font-size: 11px;
+  background: #34c759;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+/* ─── 首页 ─── */
+#home-page.hidden {
+  display: none;
+}
+
+.home-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 24px 24px;
+  text-align: center;
+}
+
+.logo {
+  font-size: 56px;
+  margin-bottom: 12px;
 }
 
 h1 {
-  font-size: 2rem;
+  font-size: 24px;
   font-weight: 700;
-  margin-bottom: 0.5rem;
+  margin-bottom: 6px;
 }
 
-.subtitle {
+.home-sub {
   color: var(--text-secondary);
-  font-size: 1rem;
-  margin-bottom: 2rem;
+  font-size: 14px;
+  margin-bottom: 32px;
 }
 
-.card {
-  background: var(--card-bg);
+.quick-links {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.quick-links a {
+  display: block;
+  padding: 14px;
+  background: var(--surface);
   border-radius: var(--radius);
-  padding: 1.5rem;
-  text-align: left;
-  line-height: 2;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  text-decoration: none;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  transition: transform 0.1s;
 }
 
-.card strong {
-  color: var(--accent);
-}
-
-.btn {
-  margin-top: 1.5rem;
-  padding: 0.75rem 2rem;
-  font-size: 1rem;
-  font-weight: 600;
-  color: #ffffff;
-  background: var(--accent);
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: background 0.2s, transform 0.1s;
-}
-
-.btn:active {
+.quick-links a:active {
   transform: scale(0.96);
 }
 
-.greet {
-  margin-top: 1rem;
-  padding: 0.75rem;
-  border-radius: 12px;
-  background: var(--card-bg);
-  opacity: 0;
-  transition: opacity 0.3s;
+/* ─── 媒体检测通知条 ─── */
+#media-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 16px;
+  right: 16px;
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 3000;
+  box-shadow: 0 4px 16px rgba(107, 79, 247, 0.25);
 }
 
-.greet.visible {
-  opacity: 1;
+#media-toast.hidden {
+  display: none;
+}
+
+#toast-msg {
+  flex: 1;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.toast-action {
+  border: none;
+  background: var(--accent);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.toast-action:active {
+  background: var(--accent-hover);
+}
+
+.toast-close {
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 4px;
 }

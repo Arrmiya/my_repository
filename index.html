@@ -2,25 +2,58 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="color-scheme" content="light dark" />
-    <title>My Tauri App</title>
+    <title>Tauri 浏览器</title>
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
-    <div id="app">
-      <div class="container">
-        <h1>🦀 Tauri + Android</h1>
-        <p class="subtitle">跨平台桌面应用 · 现已支持 Android</p>
-        <div class="card">
-          <p>前端: <strong>Vanilla JS + Vite</strong></p>
-          <p>后端: <strong>Rust + Tauri v2</strong></p>
-          <p>平台: <strong>Android · Windows · macOS · Linux</strong></p>
-        </div>
-        <button id="greet-btn" class="btn">👋 打招呼</button>
-        <p id="greet-msg" class="greet"></p>
+    <!-- 地址栏 -->
+    <div id="toolbar">
+      <button id="btn-back" class="nav-btn" title="后退">◀</button>
+      <button id="btn-forward" class="nav-btn" title="前进">▶</button>
+      <div id="url-bar-wrapper">
+        <span id="url-lock">🔒</span>
+        <input id="url-input" type="text" placeholder="输入网址或搜索..." autocomplete="off" autocorrect="off" autocapitalize="off" enterkeyhint="go" />
+        <button id="btn-go" class="go-btn">→</button>
+      </div>
+      <button id="btn-home" class="nav-btn" title="主页">🏠</button>
+      <button id="btn-downloads" class="nav-btn" title="下载列表">📥</button>
+    </div>
+
+    <!-- 下载面板 -->
+    <div id="download-panel" class="panel hidden">
+      <div class="panel-header">
+        <span>📥 下载列表</span>
+        <button id="btn-close-panel" class="close-btn">✕</button>
+      </div>
+      <div id="download-list">
+        <p class="empty-msg">暂无下载</p>
       </div>
     </div>
+
+    <!-- 视频检测通知条 -->
+    <div id="media-toast" class="hidden">
+      <span id="toast-msg"></span>
+      <button id="toast-download" class="toast-action">⬇ 下载</button>
+      <button id="toast-dismiss" class="toast-close">✕</button>
+    </div>
+
+    <!-- 首页卡片 -->
+    <div id="home-page">
+      <div class="home-container">
+        <div class="logo">🌐</div>
+        <h1>Tauri 浏览器</h1>
+        <p class="home-sub">输入网址开始浏览 · 自动检测可下载视频</p>
+        <div class="quick-links">
+          <a href="#" data-url="https://m.bilibili.com">📺 Bilibili</a>
+          <a href="#" data-url="https://x.com">🐦 Twitter / X</a>
+          <a href="#" data-url="https://www.baidu.com">🔍 百度</a>
+          <a href="#" data-url="https://www.google.com">🌍 Google</a>
+        </div>
+      </div>
+    </div>
+
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

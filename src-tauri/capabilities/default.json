@@ -1,12 +1,19 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "Default capability for the main window",
+  "description": "浏览器 + 下载所需权限",
   "windows": ["main"],
   "permissions": [
     "core:default",
     "core:window:default",
     "core:window:allow-close",
-    "core:window:allow-set-title"
+    "core:window:allow-set-title",
+    "core:event:default",
+    "core:event:allow-emit",
+    "core:event:allow-listen",
+    "core:webview:default",
+    "core:webview:allow-set-webview-url",
+    "core:path:default",
+    "core:resources:default"
   ]
 }
