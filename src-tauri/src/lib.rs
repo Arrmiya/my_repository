@@ -175,6 +175,12 @@ async fn navigate(app: AppHandle, url: String) -> Result<(), String> {
     };
     let parsed = Url::parse(&target_url).map_err(|e| format!("无效 URL: {}", e))?;
     webview.navigate(parsed).map_err(|e| format!("导航失败: {}", e))?;
+    // 页面加载后重新注入
+    let wv = webview.clone();
+    tokio::spawn(async move {
+        tokio::time::sleep(std::time::Duration::from_millis(500)).await;
+        let _ = wv.eval(INIT_SCRIPT);
+    });
     Ok(())
 }
 
@@ -294,13 +300,9 @@ pub fn run() {
     tauri::Builder::default()
         .manage(Arc::new(Mutex::new(AppState { cancel_flag: Arc::new(AtomicBool::new(false)) })))
         .setup(move |app| {
-            if let Some(old) = app.get_webview_window("main") { let _ = old.close(); }
-            let _ = tauri::WebviewWindowBuilder::new(app, "main", tauri::WebviewUrl::App("index.html".into()))
-                .title("Tauri 浏览器")
-                .inner_size(390.0, 844.0)
-                .initialization_script(INIT_SCRIPT)
-                .build()
-                .expect("创建主窗口失败");
+            if let Some(webview) = app.get_webview_window("main") {
+                let _ = webview.eval(INIT_SCRIPT);
+            }
             println!("[Browser] v0.3 已启动");
             Ok(())
         })
