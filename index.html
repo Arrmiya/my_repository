@@ -8,19 +8,6 @@
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
-    <!-- 地址栏 -->
-    <div id="toolbar">
-      <button id="btn-back" class="nav-btn" title="后退">◀</button>
-      <button id="btn-forward" class="nav-btn" title="前进">▶</button>
-      <div id="url-bar-wrapper">
-        <span id="url-lock">🔒</span>
-        <input id="url-input" type="text" placeholder="输入网址或搜索..." autocomplete="off" autocorrect="off" autocapitalize="off" enterkeyhint="go" />
-        <button id="btn-go" class="go-btn">→</button>
-      </div>
-      <button id="btn-home" class="nav-btn" title="主页">🏠</button>
-      <button id="btn-downloads" class="nav-btn" title="下载列表">📥</button>
-    </div>
-
     <!-- 下载面板 -->
     <div id="download-panel" class="panel hidden">
       <div class="panel-header">
@@ -39,18 +26,28 @@
       <button id="toast-dismiss" class="toast-close">✕</button>
     </div>
 
-    <!-- 首页卡片 -->
+    <!-- 首页 -->
     <div id="home-page">
       <div class="home-container">
         <div class="logo">🌐</div>
         <h1>Tauri 浏览器</h1>
         <p class="home-sub">输入网址开始浏览 · 自动检测可下载视频</p>
+
+        <!-- 搜索栏 -->
+        <div id="search-bar">
+          <span id="url-lock">🔒</span>
+          <input id="url-input" type="text" placeholder="输入网址或搜索..." autocomplete="off" autocorrect="off" autocapitalize="off" enterkeyhint="go" />
+          <button id="btn-go" class="go-btn">→</button>
+        </div>
+
         <div class="quick-links">
           <a href="#" data-url="https://m.bilibili.com">📺 Bilibili</a>
           <a href="#" data-url="https://x.com">🐦 Twitter / X</a>
           <a href="#" data-url="https://www.baidu.com">🔍 百度</a>
           <a href="#" data-url="https://www.google.com">🌍 Google</a>
         </div>
+
+        <button id="btn-downloads" class="downloads-link">📥 下载列表</button>
       </div>
     </div>
 

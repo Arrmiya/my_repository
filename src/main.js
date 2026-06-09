@@ -6,9 +6,6 @@ import { listen } from "@tauri-apps/api/event";
 
 const urlInput = document.getElementById("url-input");
 const btnGo = document.getElementById("btn-go");
-const btnBack = document.getElementById("btn-back");
-const btnForward = document.getElementById("btn-forward");
-const btnHome = document.getElementById("btn-home");
 const btnDownloads = document.getElementById("btn-downloads");
 const downloadPanel = document.getElementById("download-panel");
 const downloadList = document.getElementById("download-list");
@@ -18,7 +15,6 @@ const toastMsg = document.getElementById("toast-msg");
 const toastDownload = document.getElementById("toast-download");
 const toastDismiss = document.getElementById("toast-dismiss");
 const homePage = document.getElementById("home-page");
-const urlLock = document.getElementById("url-lock");
 
 // ─── 下载状态 ───
 
@@ -47,30 +43,6 @@ btnGo.addEventListener("click", () => doNavigate(urlInput.value));
 urlInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") doNavigate(urlInput.value);
 });
-
-btnBack.addEventListener("click", async () => {
-  try {
-    await invoke("go_home");
-    homePage.classList.remove("hidden");
-    urlInput.value = "";
-    urlLock.textContent = "🔒";
-  } catch (err) {
-    console.error("后退失败:", err);
-  }
-});
-
-btnHome.addEventListener("click", async () => {
-  try {
-    await invoke("go_home");
-    homePage.classList.remove("hidden");
-    urlInput.value = "";
-    urlLock.textContent = "🔒";
-  } catch (e) {
-    console.error(e);
-  }
-});
-
-btnForward.addEventListener("click", () => urlInput.focus());
 
 // ─── 快捷链接 ───
 
