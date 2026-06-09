@@ -214,9 +214,10 @@ async fn start_download(
 
     let app_handle = app.clone();
     let url_clone = url.clone();
+    let fname_clone = fname.clone();
 
     tokio::spawn(async move {
-        match download_file(&url_clone, &file_path, &fname, &app_handle, &cancel).await {
+        match download_file(&url_clone, &file_path, &fname_clone, &app_handle, &cancel).await {
             Ok(path) => {
                 let progress = DownloadProgress {
                     url: url_clone,
@@ -368,7 +369,7 @@ pub fn run() {
         })))
         .setup(move |app| {
             // 注入视频检测脚本到主 webview
-            if let Some(webview) = app.get_webview("main") {
+            if let Some(webview) = app.get_webview_window("main") {
                 let _ = webview.eval(INJECT_SCRIPT);
             }
             println!("[Browser] 应用启动完成");
