@@ -12,7 +12,6 @@
     "core:event:allow-emit",
     "core:event:allow-listen",
     "core:webview:default",
-    "core:webview:allow-set-webview-url",
     "core:path:default",
     "core:resources:default"
   ]
