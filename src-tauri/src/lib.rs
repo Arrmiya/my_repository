@@ -373,6 +373,16 @@ pub fn run() {
             // 注入视频检测脚本到主 webview
             if let Some(webview) = app.get_webview_window("main") {
                 let _ = webview.eval(INJECT_SCRIPT);
+
+                // 拦截自定义 URL Scheme（阻止百度/淘宝等跳转 App）
+                let _ = webview.on_navigation(|url| {
+                    let scheme = url.scheme();
+                    let allowed = matches!(scheme, "http" | "https" | "tauri" | "asset" | "data" | "blob" | "about");
+                    if !allowed {
+                        println!("[Browser] 已拦截跳转: {}://...", scheme);
+                    }
+                    allowed
+                });
             }
             println!("[Browser] 应用启动完成");
             Ok(())
