@@ -214,14 +214,16 @@ async fn start_download(
 
     let app_handle = app.clone();
     let url_clone = url.clone();
-    let fname_clone = fname.clone();
+    let fname_dl = fname.clone();
+    let fname_ok = fname.clone();
+    let fname_err = fname.clone();
 
     tokio::spawn(async move {
-        match download_file(&url_clone, &file_path, &fname_clone, &app_handle, &cancel).await {
+        match download_file(&url_clone, &file_path, &fname_dl, &app_handle, &cancel).await {
             Ok(path) => {
                 let progress = DownloadProgress {
                     url: url_clone,
-                    filename: fname.clone(),
+                    filename: fname_ok,
                     downloaded: 0,
                     total: 0,
                     done: true,
@@ -234,7 +236,7 @@ async fn start_download(
                 eprintln!("[Browser] 下载失败: {}", e);
                 let progress = DownloadProgress {
                     url: url_clone,
-                    filename: fname,
+                    filename: fname_err,
                     downloaded: 0,
                     total: 0,
                     done: true,
