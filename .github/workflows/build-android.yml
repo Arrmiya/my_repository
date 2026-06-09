@@ -199,21 +199,23 @@ jobs:
           NDK_HOME: ${{ env.NDK_HOME }}
 
       # ============================================================
-      # 10. Upload APK artifact
+      # 10. Find the APK
+      # ============================================================
+      - name: 🔍 Find APK
+        run: |
+          echo "=== Searching for APK files ==="
+          find src-tauri/gen -name "*.apk" 2>/dev/null || echo "No APK found in gen/"
+          find . -name "*.apk" 2>/dev/null || echo "No APK found anywhere"
+          echo "=== Listing Android build output dirs ==="
+          find src-tauri/gen/android -type d 2>/dev/null || echo "No android gen dir"
+
+      # ============================================================
+      # 11. Upload APK artifact
       # ============================================================
       - name: 📤 Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: app-debug
-          path: src-tauri/gen/android/app/build/outputs/apk/debug/app-debug.apk
-          if-no-files-found: error
-          compression-level: 9
-
-      # Also try release path if it exists
-      - name: 📤 Upload release APK (if exists)
-        if: ${{ inputs.build-type == 'release' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-release-unsigned
-          path: src-tauri/gen/android/app/build/outputs/apk/release/app-release-unsigned.apk
+          path: src-tauri/gen/android/**/outputs/apk/**/*.apk
           if-no-files-found: warn
+          compression-level: 9
